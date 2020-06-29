@@ -47,15 +47,23 @@ try:
 	
 	url_l = ['https://www.economist.com'+a.get('href') for a in soup.body.div.div.next_sibling.next_sibling.next_sibling.main.div.find_all('a', class_='headline-link')]	
 	
-	for url in url_l:
-		LOG.info("HTML to PDF: "+url+" ...")
-		out_pdf_name = "_".join(url.split('/')[-4:])
-		pdfkit.from_url(
-			url,
-			out_pdf_name+".pdf",
-			configuration = config,
-			options = pdfkit_options,
-		)
+	# for url in url_l:
+		# LOG.info("HTML to PDF: "+url+" ...")
+		# out_pdf_name = "_".join(url.split('/')[-4:])
+		# pdfkit.from_url(
+			# url,
+			# out_pdf_name+".pdf",
+			# configuration = config,
+			# options = pdfkit_options,
+		# )
+
+	LOG.info("HTML to PDF: generate only one pdf ...")
+	pdfkit.from_url(
+		url_l,
+		"out.pdf",
+		configuration = config,
+		options = pdfkit_options,
+	)
 
 ## -------- SOMETHING WENT WRONG -----------------------------	
 except:
