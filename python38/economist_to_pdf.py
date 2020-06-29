@@ -26,32 +26,36 @@ try:
 	
 	## -------------------------------------------------------
 	## THE MAIN PROGRAM STARTS HERE
-	## -------------------------------------------------------	
+	## -------------------------------------------------------
+    
+	import requests
 
-	import plotly.express as px
-	import pandas as pd
-	import os
-	
-	this_file_path = os.path.abspath(__file__)
-	this_file_folder = os.path.dirname(this_file_path)
-	
-	confirmed_file_path = os.path.abspath(os.path.join(this_file_folder, r'..\data\time_series_covid19_confirmed_global.csv'))
+	import pdfkit
+	path_wkthmltopdf = r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+	config = pdfkit.configuration(wkhtmltopdf = path_wkthmltopdf)
+	pdfkit_options = {
+		# 'minimum-font-size': 30,
+		'zoom': 2,
+		'disable-javascript': None,
+	}
 
-	# df = px.data.iris()
-	df = pd.read_csv(confirmed_file_path).transpose().reset_index()
+	from bs4 import BeautifulSoup
 	
-	tdf = df.loc[4:,:].rename(columns={'index':'date'})
-	for c in range(266):
-		tdf = tdf.rename(columns={c:"{}; {}".format(df.loc[1, c], df.loc[0, c]).replace('; nan', '')})
-	fig = px.scatter(tdf, x = 'date', y = 'France', title="A Plotly Express Figure")
-
-	fig.show()
+	weekly_url = 'https://www.economist.com/weeklyedition/'
+	page = requests.get(weekly_url)
+	soup = BeautifulSoup(page.text, 'html.parser')
 	
-	foo = tdf.loc[:,['date', 'Afghanistan']]
-	foo['country'] = 'Afghanistan'
-	foo = foo.rename(columns={'Afghanistan':'confirmed'})
+	url_l = ['https://www.economist.com'+a.get('href') for a in soup.body.div.div.next_sibling.next_sibling.next_sibling.main.div.find_all('a', class_='headline-link')]	
 	
-	import IPython; IPython.embed(colors='Neutral')
+	for url in url_l:
+		LOG.info("HTML to PDF: "+url+" ...")
+		out_pdf_name = "_".join(url.split('/')[-4:])
+		pdfkit.from_url(
+			url,
+			out_pdf_name+".pdf",
+			configuration = config,
+			options = pdfkit_options,
+		)
 
 ## -------- SOMETHING WENT WRONG -----------------------------	
 except:
@@ -62,4 +66,5 @@ except:
 ## -------- GIVE THE USER A CHANCE TO READ MESSAGES-----------
 finally:
 	
-	input("Press any key to exit ...")
+	# input("Press any key to exit ...")
+	pass
