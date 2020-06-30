@@ -28,28 +28,34 @@ try:
 	## THE MAIN PROGRAM STARTS HERE
 	## -------------------------------------------------------	
 
+    LOG.info("imports ...")
     import plotly.express as px
     import plotly.graph_objects as go
     import pandas as pd
 
     # ---- raw csv to df
-    confir_df = pd.read_csv(r'C:\Users\rex87\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_covid19_confirmed_global.csv').transpose().reset_index()
-    deaths_df = pd.read_csv(r'C:\Users\rex87\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_covid19_deaths_global.csv').transpose().reset_index()
+    LOG.info("get data from https://github.com/CSSEGISandData/COVID-19 ...")
+    confir_df = pd.read_csv(r'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv').transpose().reset_index()
+    deaths_df = pd.read_csv(r'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv').transpose().reset_index()
 
     # ---- create date column from index
+    LOG.info("create date column from index ...")
     cumul_confir_df = confir_df.loc[4:,:].rename(columns={'index':'date'})
     cumul_deaths_df = deaths_df.loc[4:,:].rename(columns={'index':'date'})
 
     # ---- use appropriate date format for plotly
+    LOG.info("use appropriate date format for plotly ...")
     cumul_confir_df.date = pd.to_datetime(cumul_confir_df.date)    
     cumul_deaths_df.date = pd.to_datetime(cumul_deaths_df.date)    
 
-    # ---- rename columns with country names    
+    # ---- rename columns with country names
+    LOG.info("rename columns with country names ...")    
     for c in range(266):
         cumul_confir_df = cumul_confir_df.rename(columns={c:"{}; {}".format(confir_df.loc[1, c], confir_df.loc[0, c]).replace('; nan', '')})
         cumul_deaths_df = cumul_deaths_df.rename(columns={c:"{}; {}".format(deaths_df.loc[1, c], deaths_df.loc[0, c]).replace('; nan', '')})
 
     # ---- daily processing
+    LOG.info("process cumul data to get daily data ...")  
     daily_confir_df = pd.DataFrame()
     daily_deaths_df = pd.DataFrame()
     daily_confir_df['date'] = cumul_confir_df.loc[:, 'date']
@@ -58,23 +64,25 @@ try:
         
         # ---- confirmed cases
         daily_confir_df[cumul_confir_df.columns[c]] = cumul_confir_df[cumul_confir_df.columns[c]].diff()
-        cumul_confir_df[cumul_confir_df.columns[c]+' (rolling7)'] = round(cumul_confir_df[cumul_confir_df.columns[c]].rolling(7, center =True).sum()/7)
-        daily_confir_df[cumul_confir_df.columns[c]+' (rolling7)'] = round(daily_confir_df[cumul_confir_df.columns[c]].rolling(7, center =True).sum()/7)        
+        cumul_confir_df[cumul_confir_df.columns[c]+' (7day)'] = round(cumul_confir_df[cumul_confir_df.columns[c]].rolling(7, center =True).sum()/7)
+        daily_confir_df[cumul_confir_df.columns[c]+' (7day)'] = round(daily_confir_df[cumul_confir_df.columns[c]].rolling(7, center =True).sum()/7)        
         
         # ---- deaths
         daily_deaths_df[cumul_deaths_df.columns[c]] = cumul_deaths_df[cumul_deaths_df.columns[c]].diff()
-        cumul_deaths_df[cumul_deaths_df.columns[c]+' (rolling7)'] = round(cumul_deaths_df[cumul_deaths_df.columns[c]].rolling(7, center =True).sum()/7)
-        daily_deaths_df[cumul_deaths_df.columns[c]+' (rolling7)'] = round(daily_deaths_df[cumul_deaths_df.columns[c]].rolling(7, center =True).sum()/7)
+        cumul_deaths_df[cumul_deaths_df.columns[c]+' (7day)'] = round(cumul_deaths_df[cumul_deaths_df.columns[c]].rolling(7, center =True).sum()/7)
+        daily_deaths_df[cumul_deaths_df.columns[c]+' (7day)'] = round(daily_deaths_df[cumul_deaths_df.columns[c]].rolling(7, center =True).sum()/7)
 
     # ------------------
     # DISPLAY PLOTS
     # ------------------
-    
+    LOG.info("plot ...")    
+   
     # ---- create figure
     fig = go.Figure()
     
     # ---- parameters
-    coutry_name_l = ['France', 'United Kingdom', 'Germany']
+    coutry_name_l = ['France', 'United Kingdom', 'Germany', 'Italy', 'Spain', 'Turkey']
+    # coutry_name_l = ['US', 'Brazil', 'India', 'Russia']
     
     # to_plot_df, txt = cumul_confir_df, 'cumul confirmed'
     # to_plot_df, txt = daily_confir_df, 'daily confirmed'
@@ -90,7 +98,7 @@ try:
                 x = to_plot_df['date'],
                 y = to_plot_df[country_name],
                 mode = 'markers',
-                name = country_name+': ' + txt,
+                name = country_name,
             )
         )
       
@@ -98,42 +106,32 @@ try:
         fig.add_trace(
             go.Scatter(
                 x = to_plot_df['date'],
-                y = to_plot_df[country_name+' (rolling7)'],
+                y = to_plot_df[country_name+' (7day)'],
                 mode = 'lines',
-                name = country_name+': ' + txt + ' (rolling7)',
+                name = country_name+' (7d)',
             )
         )
     
     # ---- time slider
     fig.update_layout(
+        title = "COVID-19: "+txt,
         xaxis=dict(
-            rangeselector=dict(
-                buttons=list([
-                    dict(count=1,
-                         label="1m",
-                         step="month",
-                         stepmode="backward"),
-                    dict(count=6,
-                         label="6m",
-                         step="month",
-                         stepmode="backward"),
-                    dict(count=1,
-                         label="YTD",
-                         step="year",
-                         stepmode="todate"),
-                    dict(count=1,
-                         label="1y",
-                         step="year",
-                         stepmode="backward"),
-                    dict(step="all")
-                ])
-            ),
-            rangeslider=dict(
-                visible=True
-            ),
             type="date"
-        )
+        ),
+        legend = dict(
+            x=0.01,
+            y=0.99,
+        ),
+        margin = dict(
+            l = 30,
+            r = 10,
+            b = 10,
+            t = 50,
+            pad = 4,
+        ),
     )
+
+    fig.update_yaxes(automargin=True)
 
     # show !
     fig.show()
