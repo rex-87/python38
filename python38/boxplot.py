@@ -39,8 +39,8 @@ try:
 	# ---- fake up some data
 	N = 30
 	mu = 4.5
-	uut_std, meas_std = .020, .005
-	# uut_std, meas_std = .001, .004
+	# uut_std, meas_std = .010, .0025
+	uut_std, meas_std = .010, .0025
 	uut_count = 10
 	data = []
 	for i in range(uut_count):
@@ -58,7 +58,8 @@ try:
 		),
 		xaxis_title = "Serial Number",
 		yaxis_title = "Value",
-	)	
+	)
+	fig.update_yaxes(range=[4.35, 4.6])
 	fig.show()
 
 	# ---- matplotlib
