@@ -8,4 +8,4 @@ call %~dp0\setup\setup.bat
 
 @echo off
 REM - Run main program
-call %MINICONDA_INSTALL_FOLDER%\Scripts\activate.bat %ENVIRONMENT_FOLDER% && python %~dp0\python38\covid_plotly.py %options%
+call %MINICONDA_INSTALL_FOLDER%\Scripts\activate.bat %ENVIRONMENT_FOLDER% && python %~dp0\python38\covid_plotly_jhu.py %options%
