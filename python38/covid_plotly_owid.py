@@ -55,20 +55,22 @@ try:
 	# ---- create figure
 	fig = go.Figure()	
 
-	# column_name = 'total_cases'
-	column_name = 'new_cases'
+	column_name = 'total_cases'
+	# column_name = 'new_cases'
+	# column_name = 'total_deaths'
 	# column_name = 'new_deaths'
-	country_name_l = ['France', 'United Kingdom', 'Germany', 'Italy', 'Spain', 'United States']
+	country_name_l = ['France', 'United Kingdom', 'Germany', 'Italy', 'Spain', 'United States', 'Sweden', 'India', 'Brazil', 'Portugal']
 	for country_name in country_name_l:
 		df_ = owid_df[owid_df['location'] == country_name]
 		# fig.add_trace(go.Scatter(x = df_['date'], y = df_[column_name]/, mode = 'markers', name = country_name))
 		# fig.add_trace(go.Scatter(x = df_['date'], y = round(df_[column_name].rolling(7, center =True).sum()/7), mode = 'lines', name = '{} (7d)'.format(country_name)))
 		fig.add_trace(go.Scatter(x = df_['date'], y = round(1e8*df_[column_name]/df_['population']), mode = 'markers', name = country_name))
 		fig.add_trace(go.Scatter(x = df_['date'], y = round(1e8*df_[column_name].rolling(7, center =True).sum()/7/df_['population']), mode = 'lines', name = '{} (7d)'.format(country_name)))
+		# fig.add_trace(go.Scatter(x = df_['date'], y = round(1e8*df_[column_name].rolling(7, center =True).median()/df_['population']), mode = 'lines', name = '{} (7d)'.format(country_name)))
 
 	# ---- update plot layout
 	fig.update_layout(
-		title = "Our World In Data: COVID-19 {}".format(column_name),
+		title = "Our World In Data: COVID-19 {} [per 100M]".format(column_name),
 		xaxis=dict(
 			type="date"
 		),
@@ -89,6 +91,8 @@ try:
 
 	# ---- show !
 	fig.show()
+	
+	# fig.write_html("pfile.html", include_plotlyjs = 'cdn')
 	
 ## -------- SOMETHING WENT WRONG -----------------------------	
 except:
