@@ -6,3 +6,6 @@ setup/ENV_OK
 
 # Log files
 logs/
+
+# csv files
+/*.csv

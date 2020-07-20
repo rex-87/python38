@@ -84,9 +84,9 @@ try:
     coutry_name_l = ['France', 'United Kingdom', 'Germany', 'Italy', 'Spain', 'Turkey', 'Israel', 'US', 'Brazil', 'India', 'Russia']
     # coutry_name_l = ['US', 'Brazil', 'India', 'Russia']
     
-    # to_plot_df, txt = cumul_confir_df, 'cumul confirmed'
+    to_plot_df, txt = cumul_confir_df, 'cumul confirmed'
     # to_plot_df, txt = daily_confir_df, 'daily confirmed'
-    to_plot_df, txt = cumul_deaths_df, 'cumul deaths'
+    # to_plot_df, txt = cumul_deaths_df, 'cumul deaths'
     # to_plot_df, txt = daily_deaths_df, 'daily deaths'
     
     # ---- prepare plots
